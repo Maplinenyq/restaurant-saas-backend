@@ -52,11 +52,11 @@ public class CategoryServiceImpl implements CategoryService {
     public void save(CategoryDTO categoryDTO){
         Category category = new Category();
         BeanUtils.copyProperties(categoryDTO,category);
-        category.setCreateTime(LocalDateTime.now());
-        category.setUpdateTime(LocalDateTime.now());
+        /*category.setCreateTime(LocalDateTime.now());
+        category.setUpdateTime(LocalDateTime.now());*/
         category.setStatus(StatusConstant.ENABLE);
-        category.setCreateUser(BaseContext.getCurrentId());
-        category.setUpdateUser(BaseContext.getCurrentId());
+        /*category.setCreateUser(BaseContext.getCurrentId());
+        category.setUpdateUser(BaseContext.getCurrentId());*/
         categoryMapper.insert(category);
     }
     /**
@@ -86,8 +86,8 @@ public class CategoryServiceImpl implements CategoryService {
         Category category = Category.builder()
                 .id(id)
                 .status(status)
-                .updateTime(LocalDateTime.now())
-                .updateUser(BaseContext.getCurrentId())
+                /*.updateTime(LocalDateTime.now())
+                .updateUser(BaseContext.getCurrentId())*/
                 .build();
         categoryMapper.update(category);
     }
@@ -97,8 +97,8 @@ public class CategoryServiceImpl implements CategoryService {
     public void update(CategoryDTO categoryDTO) {
         Category category = new Category();
         BeanUtils.copyProperties(categoryDTO,category);
-        category.setUpdateTime(LocalDateTime.now());
-        category.setUpdateUser(BaseContext.getCurrentId());
+        /*category.setUpdateTime(LocalDateTime.now());
+        category.setUpdateUser(BaseContext.getCurrentId());*/
         categoryMapper.update(category);
     }
     //根据类型查询分类
