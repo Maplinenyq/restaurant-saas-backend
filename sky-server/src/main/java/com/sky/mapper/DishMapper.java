@@ -6,9 +6,9 @@ import com.sky.dto.DishPageQueryDTO;
 import com.sky.entity.Dish;
 import com.sky.enumeration.OperationType;
 import com.sky.vo.DishVO;
-import org.apache.ibatis.annotations.Delete;
 import org.apache.ibatis.annotations.Mapper;
 import org.apache.ibatis.annotations.Select;
+import org.apache.ibatis.annotations.Update;
 
 import java.util.List;
 
@@ -37,4 +37,12 @@ public interface DishMapper {
     // 根据id修改菜品
     @AutoFill(value = OperationType.UPDATE)
     void updateWithFlavor(Dish dish);
+
+    //菜品启售停售
+    @AutoFill(value = OperationType.UPDATE)
+    @Update("update dish set status = #{status} where id = #{id}")
+    void startOrStop(Dish dish);
+
+    //根据分类id查询菜品
+    List<Dish> list(Dish dish);
 }
