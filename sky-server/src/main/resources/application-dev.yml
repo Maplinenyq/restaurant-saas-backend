@@ -11,3 +11,8 @@ sky:
     bucket-name: sky-itcast-mapline
     access-key-id: LTAI5tBXqWE61NuAuS8UxySP
     access-key-secret: kJEcmpLatRSYu11kS7HJFPKSKXR7Hr
+  redis:
+    host: localhost
+    port: 6379
+    password:
+    database: 1
