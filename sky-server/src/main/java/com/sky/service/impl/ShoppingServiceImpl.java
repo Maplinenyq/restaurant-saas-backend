@@ -3,7 +3,6 @@ package com.sky.service.impl;
 import com.sky.context.BaseContext;
 import com.sky.dto.ShoppingCartDTO;
 import com.sky.entity.Dish;
-import com.sky.entity.Setmeal;
 import com.sky.entity.ShoppingCart;
 import com.sky.mapper.DishMapper;
 import com.sky.mapper.SetmealMapper;
@@ -67,5 +66,43 @@ public class ShoppingServiceImpl implements ShoppingService {
             shoppingCart.setCreateTime(LocalDateTime.now());
             shoppingMapper.insert(shoppingCart);
         }
+    }
+
+    //获取购物车
+    @Override
+    public List<ShoppingCart> showShoppingCart() {
+        Long currentId = BaseContext.getCurrentId();
+        return shoppingMapper.list(ShoppingCart.builder().userId(currentId).build());
+    }
+
+    //减少购物车的一个菜品数量
+    @Override
+    public void sub(ShoppingCartDTO shoppingCartDTO) {
+        ShoppingCart shoppingCart = new ShoppingCart();
+        BeanUtils.copyProperties(shoppingCartDTO, shoppingCart);
+
+        //设置当前用户的ID
+        shoppingCart.setUserId(BaseContext.getCurrentId());
+
+        List<ShoppingCart> list = shoppingMapper.list(shoppingCart);
+
+        if (list != null && !list.isEmpty()) {
+            ShoppingCart cart = list.get(0);
+            if (cart.getNumber() == 1) {
+                // 如果数量为1，则直接删除这条记录
+                shoppingMapper.deleteById(cart.getId());  // 用购物车记录的ID删除
+            } else {
+                cart.setNumber(cart.getNumber() - 1);
+                shoppingMapper.updateNumById(cart);
+            }
+        }
+    }
+
+    //清空购物车
+    @Override
+    public void clean() {
+        //设置当前用户的ID
+        Long currentId = BaseContext.getCurrentId();
+        shoppingMapper.deleteAllById(currentId);
     }
 }
