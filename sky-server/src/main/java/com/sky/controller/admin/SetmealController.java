@@ -68,6 +68,7 @@ public class SetmealController {
 
     //根据ID修改套餐
     @PutMapping
+    @CacheEvict(cacheNames={"setmealCache"},allEntries = true)
     public Result update(@RequestBody SetmealDTO setmealDTO){
         log.info("修改套餐：{}", setmealDTO);
         setmealService.update(setmealDTO);
