@@ -19,3 +19,8 @@ sky:
   wechat:
     appid: wxd32d48e4ac08d861
     secret: 4e34f3833ca940a7c66fd2276874ca04
+  shop:
+    address: 福建省南平市延平区怡景嘉园江滨北路90号
+  baidu:
+    ak: f292sB5Ex2kfoqu6EuPvmsAqLOnT8dtY
+

@@ -30,4 +30,7 @@ public interface ShoppingMapper {
     // 删除所有
     @Delete("delete from shopping_cart where user_id = #{currentId}")
     void deleteAllById(Long currentId);
+
+    // 批量插入
+    void insertBatch(List<ShoppingCart> shoppingCartList);
 }
