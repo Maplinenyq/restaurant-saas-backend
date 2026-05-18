@@ -14,7 +14,6 @@ import com.sky.exception.OrderBusinessException;
 import com.sky.exception.ShoppingCartBusinessException;
 import com.sky.mapper.*;
 import com.sky.result.PageResult;
-import com.sky.result.Result;
 import com.sky.service.OrderService;
 import com.sky.utils.HttpClientUtil;
 import com.sky.vo.OrderPaymentVO;
@@ -152,9 +151,9 @@ public class OrderServiceImpl implements OrderService {
         orderMapper.update(orders);
 
         Map map = new HashMap<>();
-        map.put("type", 1);
-        map.put("orderId", ordersDB.getId());
-        map.put("content", "订单号：" + outTradeNo);
+        map.put("type", 1); //1 来单提醒  2 客户催单
+        map.put("orderId", ordersDB.getId()); //订单id
+        map.put("content", "订单号：" + outTradeNo);  //订单内容
 
         String json = JSON.toJSONString(map);
         webSocketServer.sendToAllClient(json);
@@ -465,6 +464,27 @@ public class OrderServiceImpl implements OrderService {
             //配送距离超过5000米
             throw new OrderBusinessException("超出配送范围");
         }
+    }
+
+    //订单催单
+    @Override
+    public void reminder(Long id) {
+        //根据ID查询订单
+        Orders ordersDB = orderMapper.getById(id);
+
+        //查询订单是否存在
+        if(ordersDB == null){
+            throw new OrderBusinessException(MessageConstant.ORDER_NOT_FOUND);
+        }
+
+        //向浏览器推送催单提醒
+        Map map = new HashMap();
+        map.put("type", 2); //2表示订单催单消息
+        map.put("orderId", id);
+        map.put("content", "订单号：" + ordersDB.getNumber());
+        String json = JSON.toJSONString(map);
+
+        webSocketServer.sendToAllClient(json);
     }
 }
 
