@@ -17,6 +17,9 @@
             <if test="end != null">
                 and create_time &lt;= #{end}
             </if>
+            <if test="status != null">
+                and status = #{status}
+            </if>
         </where>
     </select>
 </mapper>
