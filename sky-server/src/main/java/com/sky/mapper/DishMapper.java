@@ -11,6 +11,7 @@ import org.apache.ibatis.annotations.Select;
 import org.apache.ibatis.annotations.Update;
 
 import java.util.List;
+import java.util.Map;
 
 
 @Mapper
@@ -45,4 +46,7 @@ public interface DishMapper {
 
     //根据分类id查询菜品
     List<Dish> list(Dish dish);
+
+    // 根据条件统计菜品数量
+    Integer countByMap(Map map);
 }
