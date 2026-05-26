@@ -2,11 +2,16 @@ package com.sky.service.impl;
 
 import com.github.pagehelper.Page;
 import com.github.pagehelper.PageHelper;
+import com.sky.constant.MessageConstant;
 import com.sky.constant.StatusConstant;
 import com.sky.dto.SetmealDTO;
 import com.sky.dto.SetmealPageQueryDTO;
+import com.sky.entity.Dish;
 import com.sky.entity.Setmeal;
 import com.sky.entity.SetmealDish;
+import com.sky.exception.DeletionNotAllowedException;
+import com.sky.exception.SetmealEnableFailedException;
+import com.sky.mapper.DishMapper;
 import com.sky.mapper.SetmealDishMapper;
 import com.sky.mapper.SetmealMapper;
 import com.sky.result.PageResult;
@@ -19,6 +24,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
+import java.util.Objects;
 
 @Service
 public class SetmealServiceImpl implements SetmealService {
@@ -27,6 +33,8 @@ public class SetmealServiceImpl implements SetmealService {
     private SetmealMapper setmealMapper;
     @Autowired
     private SetmealDishMapper setmealDishMapper;
+    @Autowired
+    private DishMapper dishMapper;
 
     // 分页查询
     @Override
@@ -61,7 +69,16 @@ public class SetmealServiceImpl implements SetmealService {
     //根据ID批量删除套餐
     @Override
     public void deleteByIds(List<Long> ids) {
+        //启售的套餐不能删除
+        for (Long id : ids) {
+            Integer setmealStatus = setmealMapper.getStatusById(id);
+            if(Objects.equals(setmealStatus, StatusConstant.ENABLE)){
+                throw new DeletionNotAllowedException(MessageConstant.SETMEAL_ON_SALE);
+            }
+        }
+        //先删除套餐和菜品的关联数据
         setmealDishMapper.deleteBySetmealIds(ids);
+        //再删除套餐
         setmealMapper.deleteByIds(ids);
     }
 
@@ -70,12 +87,26 @@ public class SetmealServiceImpl implements SetmealService {
     public SetmealVO getById(Long id) {
         SetmealVO setmealVO = setmealMapper.getById(id);
         setmealVO.setSetmealDishes(setmealDishMapper.getBySetmealId(id));
+        //启售的套餐不能删除
+        if(Objects.equals(setmealVO.getStatus(), StatusConstant.ENABLE)){
+            throw new DeletionNotAllowedException(MessageConstant.SETMEAL_ON_SALE);
+        }
         return setmealVO;
     }
 
     //根据ID修改套餐状态
     @Override
     public void startOrStop(Integer status, Long id) {
+        //查询套餐内有无未启售的菜品，否则提示套餐内有未启售的菜品无法启售
+        if(Objects.equals(status, StatusConstant.ENABLE)){
+            List<SetmealDish> setmealDishes = setmealDishMapper.getBySetmealId(id);
+            for (SetmealDish setmealDish : setmealDishes) {
+                Dish dish = dishMapper.getById(setmealDish.getDishId());
+                if(dish != null && Objects.equals(dish.getStatus(), StatusConstant.DISABLE)){
+                    throw new SetmealEnableFailedException(MessageConstant.SETMEAL_ENABLE_FAILED);
+                }
+            }
+        }
         Setmeal setmeal = Setmeal.builder()
                 .id(id)
                 .status(status)

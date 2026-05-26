@@ -54,4 +54,8 @@ public interface SetmealMapper {
 
     //根据条件统计套餐数量
     Integer countByMap(Map map);
+
+    //根据id查询套餐状态
+    @Select("select status from setmeal where id = #{id}")
+    Integer getStatusById(Long id);
 }
