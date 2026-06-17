@@ -40,8 +40,6 @@ common/ # 公共组件（异常、常量、工具类）
 pojo/ # 实体类、DTO、VO
 server/ # 业务逻辑（Controller/Service/Mapper）
 
-text
-
 ---
 
 > 个人学习项目，独立完成后端核心接口开发。
