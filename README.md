@@ -36,9 +36,9 @@
 5. 访问 `http://localhost:8080/doc.html` 查看接口文档
 
 ## 项目结构
-├── common/ # 公共组件（异常、常量、工具类）
-├── pojo/ # 实体类、DTO、VO
-└── server/ # 业务逻辑（Controller/Service/Mapper）
+common/ # 公共组件（异常、常量、工具类）
+pojo/ # 实体类、DTO、VO
+server/ # 业务逻辑（Controller/Service/Mapper）
 
 text
 
