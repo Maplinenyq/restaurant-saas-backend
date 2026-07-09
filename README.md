@@ -2,256 +2,184 @@
 
 面向连锁餐饮品牌的一站式数字化解决方案后端服务，提供菜品管理、在线点餐、订单履约、经营数据统计等核心业务接口，支持多门店统一管理。
 
+![Java](https://img.shields.io/badge/Java-17-blue) ![Spring Boot](https://img.shields.io/badge/Spring%20Boot-2.7-green) ![MySQL](https://img.shields.io/badge/MySQL-8.0-orange) ![Redis](https://img.shields.io/badge/Redis-6.0-red)
 
-## 📖 项目简介
+---
 
-**智慧餐饮SaaS平台** 是一款专为餐饮企业（餐厅、饭店）定制的外卖订餐系统。项目采用**前后端分离**的开发模式，包含**系统管理后台**和**小程序用户端**两部分：
+## 项目简介
 
-- **管理端**：供餐饮企业内部员工使用，进行菜品、套餐、订单、员工管理及数据统计
-- **用户端**：供消费者使用，通过微信小程序在线浏览菜品、添加购物车、下单支付
+专为餐饮企业定制的外卖订餐系统，采用前后端分离开发模式：
 
+- **管理端** — 供餐饮企业员工使用：菜品管理、套餐管理、订单处理、员工管理、数据统计
+- **用户端** — 供消费者使用：微信小程序在线浏览菜品、购物车、下单支付
 
-## 🧱 项目架构
+## 项目架构
 
-项目采用**三层架构**设计，按功能划分为三个核心模块：
+三层架构，按功能划分为三个核心模块：
 
-| 模块 | 说明 | 职责 |
-|------|------|------|
-| **sky-common** | 公共模块 | 常量类、上下文、枚举、异常、工具类、统一响应格式 |
-| **sky-pojo** | 数据对象模块 | Entity（表映射）、DTO（数据传输）、VO（视图对象） |
-| **sky-server** | 服务模块 | Controller、Service、Mapper、配置类、拦截器、启动类 |
+| 模块 | 说明 |
+|------|------|
+| **sky-common** | 公共模块 — 常量、上下文、枚举、异常、工具类、统一响应格式 |
+| **sky-pojo** | 数据对象模块 — Entity（表映射）、DTO（数据传输）、VO（视图对象） |
+| **sky-server** | 服务模块 — Controller、Service、Mapper、配置、拦截器、启动类 |
 
 ### 数据封装规范
 
-项目中通过四层数据对象实现前后端交互的标准化与安全性：
+| 类型 | 用途 |
+|------|------|
+| **Entity** | 与数据库表字段一一映射，仅后端内部 ORM 操作使用 |
+| **DTO** | 接收前端请求参数，限制传入字段，防止过度提交 |
+| **VO** | 返回前端响应数据，精准返回所需字段，减少网络传输 |
 
-| 类型 | 包路径 | 说明 | 使用场景 |
-|------|--------|------|----------|
-| **Entity** | `com.sky.entity` | 与数据库表字段一一映射 | 仅后端内部使用，ORM 操作 |
-| **DTO** | `com.sky.dto` | 数据传输对象，按前端需求定义 | Controller 层接收前端请求参数 |
-| **VO** | `com.sky.vo` | 视图对象，按前端展示需求定义 | Controller 层返回给前端的响应数据 |
-| **POJO** | `com.sky.pojo` | 通用数据对象 | 部分扩展场景使用 |
-
-> **设计原则**：不直接将 Entity 暴露给前端，通过 DTO 限制传入字段（防止过度提交），通过 VO 精准返回所需字段（减少网络传输），兼顾安全性与性能。
-
-
-## 🗂️ 核心功能模块
+## 功能模块
 
 | 模块 | 功能点 | 技术方案 |
 |------|--------|----------|
-| **员工管理** | 登录/登出、新增/禁用/编辑/查询员工 | JWT + BCrypt 密码加密 |
-| **分类管理** | 菜品分类/套餐分类的增删改查 | 统一状态枚举管理 |
-| **菜品管理** | 新增/批量删除/起售停售/修改/分页查询 | Redis + Spring Cache 缓存加速 |
-| **套餐管理** | 新增/删除/起售停售/修改/分页查询 | 多表关联操作，事务保证一致性 |
-| **购物车** | 添加/删除菜品/套餐、清空购物车 | Redis 缓存购物车数据 |
-| **订单管理** | 用户下单/订单支付/取消/查看，管理端接单/拒单/派送/完成 | Spring Task 定时处理超时订单 |
-| **来单提醒** | 用户端下单后管理端实时语音播报 | WebSocket 长连接推送 |
-| **数据统计** | 营业额/用户/订单/销量 Top10 统计 | 多维度数据聚合查询 |
-| **报表导出** | 营业数据 Excel 报表导出 | POI 生成多维度报表 |
-| **配送管理** | 配送范围校验 | 百度地图 API 地址解析 + 距离计算 |
+| 员工管理 | 登录/登出、新增/禁用/编辑/查询 | JWT + BCrypt 密码加密 |
+| 分类管理 | 菜品分类/套餐分类的增删改查 | 统一状态枚举管理 |
+| 菜品管理 | 新增/批量删除/起售停售/修改/分页查询 | Redis + Spring Cache 缓存加速 |
+| 套餐管理 | 新增/删除/起售停售/修改/分页查询 | 多表关联 + 事务保证一致性 |
+| 购物车 | 添加/删除菜品/套餐、清空 | Redis 缓存购物车数据 |
+| 订单管理 | 下单/支付/取消/查看，管理端接单/拒单/派送/完成 | Spring Task 定时处理超时订单 |
+| 来单提醒 | 下单后管理端实时语音播报 | WebSocket 长连接推送 |
+| 数据统计 | 营业额/用户/订单/销量 Top10 | 多维度数据聚合查询 |
+| 报表导出 | 营业数据 Excel 报表导出 | POI 生成多维度报表 |
+| 配送管理 | 配送范围校验 | 百度地图 API 地址解析 + 距离计算 |
 
+## 技术栈
 
-## 🛠️ 技术栈
+| 类别 | 技术 |
+|------|------|
+| 核心框架 | Spring Boot 2.7 + Spring MVC |
+| ORM | MyBatis + MyBatis-Spring |
+| 数据库 | MySQL 8.0 + Redis 6.0 |
+| 安全 | JWT + 自定义拦截器（管理端/用户端权限隔离）|
+| 中间件 | WebSocket（实时推送）+ Spring Task（定时任务）|
+| 文档 | Knife4j (Swagger) 在线接口调试 |
+| 工具 | POI（报表）、阿里云 OSS（图片存储）、百度地图 API（地理编码）|
 
-| 类别 | 技术 | 版本 | 说明 |
-|------|------|------|------|
-| **核心框架** | Spring Boot | 2.7.x | 基础容器框架 |
-| | Spring MVC | - | Web 层框架 |
-| **ORM 框架** | MyBatis | - | 持久层框架 |
-| | MyBatis-Spring | - | Spring 整合 |
-| **数据库** | MySQL | 8.0+ | 关系型数据库 |
-| | Redis | 6.0+ | 缓存 + 分布式 Session |
-| **中间件** | WebSocket | - | 实时双向通信 |
-| | Spring Task | - | 定时任务调度 |
-| **安全框架** | JWT | 0.9.x | 身份认证 |
-| | 自定义拦截器 | - | 权限隔离（管理端/用户端） |
-| **文档工具** | Knife4j | 3.0.x | 接口文档 + 在线调试 |
-| **工具库** | POI | 3.1.x | Excel 报表生成 |
-| | 阿里云 OSS | - | 菜品图片云端存储 |
-| | 百度地图 API | - | 地址解析 + 距离计算 |
-| **JSON 处理** | Jackson | - | JSON 序列化/反序列化 |
-| **日志** | Logback | - | 日志记录 |
+## 关键技术亮点
 
-## ⚙️ 关键技术亮点
+### 三端统一认证与权限隔离
+基于 JWT 实现 Token 认证，管理端与用户端分别使用不同密钥加密；自定义拦截器按请求路径自动识别端类型，实现权限隔离。
 
-### 1. 三端统一认证与权限隔离
+### 菜品缓存优化
+Spring Cache + Redis 缓存菜品数据，查询优先走缓存；增删改操作自动清理缓存，保证数据一致性。
 
-- 基于 **JWT** 实现 Token 认证，管理端与用户端分别使用不同密钥加密
-- **自定义拦截器**按请求路径自动识别端类型，实现权限隔离
-- 管理端 Token 有效期 2 小时，用户端 Token 有效期 7 天
+### 公共字段自动填充（AOP）
+自定义 `@AutoFill` 注解，AOP 切面统一拦截 insert/update 操作，自动注入 `create_time`、`update_time`、`create_user`、`update_user`，结合 ThreadLocal 实现无侵入式填充。
 
-### 2. 菜品缓存优化
+### 超时订单自动取消
+Spring Task 每分钟扫描一次，取消超 15 分钟未支付订单，自动恢复菜品/套餐库存，事务保证一致性。
 
-- 使用 **Spring Cache** 结合 **Redis** 缓存菜品数据
-- 缓存 Key 设计：`dish_{categoryId}_{status}`，查询优先走缓存
-- 增删改操作自动删除缓存，保证数据一致性
+### 实时来单提醒
+用户下单后 WebSocket 推送至管理端，触发语音播报，避免漏单。
 
-### 3. 公共字段自动填充（AOP）
+### 配送范围校验
+百度地图 API 将用户地址转为经纬度，计算球面距离，超出配送半径时提示用户更换地址。
 
-- 自定义 `@AutoFill` 注解，标记需要自动填充的实体字段
-- 通过 **AOP 切面**统一拦截 insert/update 操作，自动注入：
-  - `create_time` / `update_time`
-  - `create_user` / `update_user`
-- 结合 `ThreadLocal` 存储当前登录用户信息，实现无侵入式填充
-
-### 4. 超时订单自动取消
-
-- 使用 **Spring Task** 定时任务，每分钟扫描一次
-- 查询下单超 15 分钟且未支付的订单，自动取消并**恢复菜品/套餐库存**
-- 事务控制保证订单取消与库存恢复的一致性
-
-### 5. 实时来单提醒
-
-- 用户下单后，管理端通过 **WebSocket** 接收实时推送
-- 管理端页面触发**语音播报**（音频自动播放），避免漏单
-- 支持 WebSocket 心跳保活，保证连接稳定性
-
-### 6. 配送范围校验
-
-- 调用 **百度地图 API** 将用户地址转换为经纬度坐标
-- 计算用户位置与门店中心点的球面距离
-- 超出设定配送半径时提示用户更换地址
-
-### 7. 营业报表导出
-
-- 使用 **POI** 生成 Excel 报表，包含：
-  - 每日营业额概览
-  - 用户增长趋势
-  - 订单数量统计
-  - 销量 Top10 菜品/套餐
-- 支持按日期范围导出，管理端一键下载
-
-### 8. 文件云端管理
-
-- 整合**阿里云 OSS** 存储菜品图片
-- 统一文件上传接口，支持批量上传
-- 返回 OSS 访问 URL，前端直接展示
-## 🚀 快速运行
+## 快速开始
 
 ### 环境要求
+- JDK 1.8+
+- MySQL 8.0+
+- Redis 6.0+
+- Maven 3.6+
 
-| 组件 | 版本要求 |
-|------|----------|
-| JDK | 1.8+ |
-| MySQL | 8.0+ |
-| Redis | 6.0+ |
-| Maven | 3.6+ |
+### 1. 创建数据库
 
-## 🚀 快速运行
+```sql
+CREATE DATABASE sky_take_out CHARACTER SET utf8mb4;
+```
+
+导入项目 SQL 文件：
 
 ```bash
-git clone https://github.com/your-username/sky-take-out.git
-cd sky-take-out
-导入 SQL 文件
-bash
-# 创建数据库
-CREATE DATABASE sky_take_out CHARACTER SET utf8mb4;
-
-# 导入 SQL 文件
 mysql -u root -p sky_take_out < sky-server/src/main/resources/db/sky.sql
-修改配置文件
-编辑 sky-server/src/main/resources/application.yml：
+```
 
-yaml
-# 数据库配置
+### 2. 修改配置
+
+编辑 `sky-server/src/main/resources/application.yml`，配置数据库、Redis、JWT：
+
+```yaml
 spring:
   datasource:
-    url: jdbc:mysql://localhost:3306/sky_take_out?useSSL=false&serverTimezone=Asia/Shanghai
+    url: jdbc:mysql://localhost:3306/sky_take_out
     username: root
     password: your_password
-
-  # Redis 配置
   redis:
     host: localhost
     port: 6379
-    password:  # 无密码则留空
+```
 
-# JWT 配置
-sky:
-  jwt:
-    admin-secret-key: your_admin_secret_key
-    user-secret-key: your_user_secret_key
+### 3. 启动 Redis
 
-  # 阿里云 OSS 配置（可选，如需上传图片）
-  oss:
-    endpoint: oss-cn-hangzhou.aliyuncs.com
-    access-key-id: your_access_key_id
-    access-key-secret: your_access_key_secret
-    bucket-name: your_bucket_name
-
-  # 百度地图 API 配置（可选，如需配送校验）
-  baidu:
-    map:
-      ak: your_baidu_map_ak
-启动 Redis 服务
-bash
-# macOS / Linux
+```bash
 redis-server
+```
 
-# Windows
-redis-server.exe
-启动应用
-在 IDE 中运行 SkyApplication.java，或使用 Maven：
+### 4. 启动应用
 
-bash
+```bash
 mvn clean package
 java -jar sky-server/target/sky-server-*.jar
-访问接口文档
-启动成功后，访问 Knife4j 在线接口文档：
+```
 
-text
-http://localhost:8080/doc.html
-默认登录账号/密码：admin / 123456
+或直接在 IDE 中运行 `SkyApplication.java`。
 
-🧪 接口调试
-推荐使用 Knife4j 进行在线调试：
+### 5. 访问接口文档
 
-启动项目后访问 http://localhost:8080/doc.html
+启动后访问 Knife4j 在线文档：http://localhost:8080/doc.html
 
-在顶部「接口文档」->「全局参数」中添加 Token
+> 默认管理员账号：admin / 123456
 
-输入管理端登录接口返回的 token 值，即可调试需要认证的接口
+## 项目结构
 
-注意：管理端与用户端 Token 相互隔离，调用用户端接口时需使用用户端登录获取的 Token。
+```
+sky-take-out/
+├── sky-common/               # 公共模块
+│   └── src/main/java/com/sky/
+│       ├── constant/         # 常量类
+│       ├── context/          # 线程上下文（BaseContext）
+│       ├── exception/        # 自定义异常
+│       ├── properties/       # 配置属性（OSS、JWT、微信）
+│       ├── result/           # 统一响应格式
+│       └── utils/            # 工具类（JWT、OSS、HTTP、微信支付）
+├── sky-pojo/                 # 数据对象模块
+│   └── src/main/java/com/sky/
+│       ├── dto/              # 数据传输对象
+│       ├── entity/           # 数据实体
+│       └── vo/               # 视图对象
+├── sky-server/               # 服务模块
+│   └── src/main/java/com/sky/
+│       ├── controller/       # 接口（admin/ 管理端, user/ 用户端）
+│       ├── service/          # 业务逻辑层
+│       ├── mapper/           # 数据访问层
+│       ├── config/           # 配置（WebMVC、Redis、OSS、WebSocket）
+│       ├── interceptor/      # JWT 拦截器（管理端/用户端）
+│       ├── handler/          # 全局异常处理
+│       ├── aspect/           # AOP 切面（自动填充）
+│       ├── task/             # 定时任务（超时订单处理）
+│       └── websocket/        # WebSocket 实时通信
+└── pom.xml
+```
 
-📦 部署建议
-生产环境推荐配置
-组件	推荐部署方式
-应用服务	Docker 容器化 + 多实例集群
-MySQL	主从复制 + 读写分离
-Redis	哨兵模式或集群模式
-OSS	阿里云 OSS 对象存储（已集成）
-Nginx	反向代理 + 负载均衡 + 静态资源服务
-Docker 部署示例（单机）
-dockerfile
-# Dockerfile
-FROM openjdk:8-jre-alpine
-COPY sky-server/target/sky-server-*.jar app.jar
-EXPOSE 8080
-ENTRYPOINT ["java", "-jar", "/app.jar"]
-bash
-# 构建并运行
-docker build -t sky-take-out .
-docker run -d -p 8080:8080 \
-  -e SPRING_DATASOURCE_URL=jdbc:mysql://host.docker.internal:3306/sky_take_out \
-  -e SPRING_REDIS_HOST=host.docker.internal \
-  --name sky-app sky-take-out
-👤 作者
-个人学习项目，独立完成后端核心接口开发。
-通过本项目实践了企业级 Spring Boot 项目开发全流程，包括接口设计、缓存优化、定时任务、WebSocket 实时通信、第三方 API 集成等核心技术。
+## 部署建议
 
-📄 开源协议
-本项目仅供学习参考使用，请勿用于商业用途。
+| 组件 | 生产推荐方案 |
+|------|-------------|
+| 应用服务 | Docker 容器化 + 多实例集群 |
+| MySQL | 主从复制 + 读写分离 |
+| Redis | 哨兵模式或集群模式 |
+| 静态资源 | Nginx 反向代理 + 负载均衡 |
+| 图片存储 | 阿里云 OSS（已集成）|
 
-🙏 致谢
-Spring Boot
+## 注意事项
 
-MyBatis
+- 微信支付功能目前为模拟流程，生产环境需替换为真实支付接口并配置商户证书
+- 阿里云 OSS 和百度地图 API 为可选配置，不影响核心功能运行
 
-Knife4j
+---
 
-阿里云 OSS
-
-百度地图开放平台
-
-注意：微信支付功能在实际生产环境中需要配置商户证书和回调接口，本项目中仅为模拟支付流程，实际开发需替换为真实支付接口。
+> 个人学习项目，通过本项目实践了企业级 Spring Boot 项目开发全流程，涵盖接口设计、缓存优化、定时任务、WebSocket 实时通信、第三方 API 集成等核心技术。
