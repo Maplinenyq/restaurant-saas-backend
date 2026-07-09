@@ -137,15 +137,12 @@
 | Redis | 6.0+ |
 | Maven | 3.6+ |
 
-### 运行步骤
-
-1. **克隆项目**
+## 🚀 快速运行
 
 ```bash
 git clone https://github.com/your-username/sky-take-out.git
 cd sky-take-out
 导入 SQL 文件
-
 bash
 # 创建数据库
 CREATE DATABASE sky_take_out CHARACTER SET utf8mb4;
@@ -153,7 +150,6 @@ CREATE DATABASE sky_take_out CHARACTER SET utf8mb4;
 # 导入 SQL 文件
 mysql -u root -p sky_take_out < sky-server/src/main/resources/db/sky.sql
 修改配置文件
-
 编辑 sky-server/src/main/resources/application.yml：
 
 yaml
@@ -188,7 +184,6 @@ sky:
     map:
       ak: your_baidu_map_ak
 启动 Redis 服务
-
 bash
 # macOS / Linux
 redis-server
@@ -196,14 +191,12 @@ redis-server
 # Windows
 redis-server.exe
 启动应用
-
 在 IDE 中运行 SkyApplication.java，或使用 Maven：
 
 bash
 mvn clean package
 java -jar sky-server/target/sky-server-*.jar
 访问接口文档
-
 启动成功后，访问 Knife4j 在线接口文档：
 
 text
