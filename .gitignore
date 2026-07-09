@@ -4,3 +4,9 @@
 *.class
 *Test.java
 **/test/
+# 环境配置（含密钥）
+application-dev.yml
+application-local.yml
+
+# 环境变量文件
+*.env
