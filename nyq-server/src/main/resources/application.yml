@@ -1,0 +1,64 @@
+server:
+  port: 8080
+
+spring:
+  profiles:
+    active: dev
+  main:
+    allow-circular-references: true
+  datasource:
+    druid:
+      driver-class-name: ${nyq.datasource.driver-class-name}
+      url: jdbc:mysql://${nyq.datasource.host}:${nyq.datasource.port}/${nyq.datasource.database}?serverTimezone=Asia/Shanghai&useUnicode=true&characterEncoding=utf-8&zeroDateTimeBehavior=convertToNull&useSSL=false&allowPublicKeyRetrieval=true
+      username: ${nyq.datasource.username}
+      password: ${nyq.datasource.password}
+  redis:
+      host: ${nyq.redis.host}
+      port: ${nyq.redis.port}
+      password: ${nyq.redis.password}
+      database: ${nyq.redis.database}
+
+mybatis:
+  #mapper配置文件
+  mapper-locations: classpath:mapper/*.xml
+  type-aliases-package: com.nyq.entity
+  configuration:
+    #开启驼峰命名
+    map-underscore-to-camel-case: true
+
+logging:
+  level:
+    com:
+      nyq:
+        mapper: debug
+        service: info
+        controller: info
+
+nyq:
+  jwt:
+    # 设置jwt签名加密时使用的秘钥
+    admin-secret-key: itcast
+    # 设置jwt过期时间
+    admin-ttl: 7200000
+    # 设置前端传递过来的令牌名称
+    admin-token-name: token
+
+    # 设置用户令牌名称
+    user-secret-key: itmapline
+    # 令牌过期时间
+    user-ttl: 7200000
+    # 前端传递过来的令牌名称
+    user-token-name: authentication
+  alioss:
+    endpoint: ${nyq.alioss.endpoint}
+    access-key-id: ${nyq.alioss.access-key-id}
+    access-key-secret: ${nyq.alioss.access-key-secret}
+    bucket-name: ${nyq.alioss.bucket-name}
+  wechat:
+    appid: ${nyq.wechat.appid}
+    secret: ${nyq.wechat.secret}
+  shop:
+    address: ${nyq.shop.address}
+  baidu:
+    ak: ${nyq.baidu.ak}
+

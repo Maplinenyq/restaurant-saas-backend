@@ -1,0 +1,39 @@
+package com.nyq.service;
+
+import com.nyq.dto.DishDTO;
+import com.nyq.dto.DishPageQueryDTO;
+import com.nyq.entity.Dish;
+import com.nyq.result.PageResult;
+import com.nyq.vo.DishVO;
+import org.springframework.stereotype.Service;
+
+import java.util.List;
+
+@Service
+public interface DishService {
+
+    //新增菜品和对应的口味
+    void saveWithFlavor(DishDTO dishDTO);
+
+    //菜品分页查询
+    PageResult pageQuery(DishPageQueryDTO dishPageQueryDTO);
+
+    //批量删除菜品
+    void deleteByIds(List<Long> ids);
+
+    //根据id查询菜品和对应的口味数据
+    DishVO getByIdWithFlavor(Long id);
+
+    //修改菜品
+    void updateWithFlavor(DishDTO dishDTO);
+
+    //起售停售
+    void startOrStop(Integer status, Long id);
+
+    //根据分类id查询菜品
+    List<Dish> list(Long categoryId);
+
+    //条件查询菜品以及风味
+    List<DishVO> listWithFlavor(Dish dish);
+
+}
