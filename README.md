@@ -71,3 +71,194 @@
 | | 百度地图 API | - | 地址解析 + 距离计算 |
 | **JSON 处理** | Jackson | - | JSON 序列化/反序列化 |
 | **日志** | Logback | - | 日志记录 |
+
+## ⚙️ 关键技术亮点
+
+### 1. 三端统一认证与权限隔离
+
+- 基于 **JWT** 实现 Token 认证，管理端与用户端分别使用不同密钥加密
+- **自定义拦截器**按请求路径自动识别端类型，实现权限隔离
+- 管理端 Token 有效期 2 小时，用户端 Token 有效期 7 天
+
+### 2. 菜品缓存优化
+
+- 使用 **Spring Cache** 结合 **Redis** 缓存菜品数据
+- 缓存 Key 设计：`dish_{categoryId}_{status}`，查询优先走缓存
+- 增删改操作自动删除缓存，保证数据一致性
+
+### 3. 公共字段自动填充（AOP）
+
+- 自定义 `@AutoFill` 注解，标记需要自动填充的实体字段
+- 通过 **AOP 切面**统一拦截 insert/update 操作，自动注入：
+  - `create_time` / `update_time`
+  - `create_user` / `update_user`
+- 结合 `ThreadLocal` 存储当前登录用户信息，实现无侵入式填充
+
+### 4. 超时订单自动取消
+
+- 使用 **Spring Task** 定时任务，每分钟扫描一次
+- 查询下单超 15 分钟且未支付的订单，自动取消并**恢复菜品/套餐库存**
+- 事务控制保证订单取消与库存恢复的一致性
+
+### 5. 实时来单提醒
+
+- 用户下单后，管理端通过 **WebSocket** 接收实时推送
+- 管理端页面触发**语音播报**（音频自动播放），避免漏单
+- 支持 WebSocket 心跳保活，保证连接稳定性
+
+### 6. 配送范围校验
+
+- 调用 **百度地图 API** 将用户地址转换为经纬度坐标
+- 计算用户位置与门店中心点的球面距离
+- 超出设定配送半径时提示用户更换地址
+
+### 7. 营业报表导出
+
+- 使用 **POI** 生成 Excel 报表，包含：
+  - 每日营业额概览
+  - 用户增长趋势
+  - 订单数量统计
+  - 销量 Top10 菜品/套餐
+- 支持按日期范围导出，管理端一键下载
+
+### 8. 文件云端管理
+
+- 整合**阿里云 OSS** 存储菜品图片
+- 统一文件上传接口，支持批量上传
+- 返回 OSS 访问 URL，前端直接展示
+## 🚀 快速运行
+
+### 环境要求
+
+| 组件 | 版本要求 |
+|------|----------|
+| JDK | 1.8+ |
+| MySQL | 8.0+ |
+| Redis | 6.0+ |
+| Maven | 3.6+ |
+
+### 运行步骤
+
+1. **克隆项目**
+
+```bash
+git clone https://github.com/your-username/sky-take-out.git
+cd sky-take-out
+导入 SQL 文件
+
+bash
+# 创建数据库
+CREATE DATABASE sky_take_out CHARACTER SET utf8mb4;
+
+# 导入 SQL 文件
+mysql -u root -p sky_take_out < sky-server/src/main/resources/db/sky.sql
+修改配置文件
+
+编辑 sky-server/src/main/resources/application.yml：
+
+yaml
+# 数据库配置
+spring:
+  datasource:
+    url: jdbc:mysql://localhost:3306/sky_take_out?useSSL=false&serverTimezone=Asia/Shanghai
+    username: root
+    password: your_password
+
+  # Redis 配置
+  redis:
+    host: localhost
+    port: 6379
+    password:  # 无密码则留空
+
+# JWT 配置
+sky:
+  jwt:
+    admin-secret-key: your_admin_secret_key
+    user-secret-key: your_user_secret_key
+
+  # 阿里云 OSS 配置（可选，如需上传图片）
+  oss:
+    endpoint: oss-cn-hangzhou.aliyuncs.com
+    access-key-id: your_access_key_id
+    access-key-secret: your_access_key_secret
+    bucket-name: your_bucket_name
+
+  # 百度地图 API 配置（可选，如需配送校验）
+  baidu:
+    map:
+      ak: your_baidu_map_ak
+启动 Redis 服务
+
+bash
+# macOS / Linux
+redis-server
+
+# Windows
+redis-server.exe
+启动应用
+
+在 IDE 中运行 SkyApplication.java，或使用 Maven：
+
+bash
+mvn clean package
+java -jar sky-server/target/sky-server-*.jar
+访问接口文档
+
+启动成功后，访问 Knife4j 在线接口文档：
+
+text
+http://localhost:8080/doc.html
+默认登录账号/密码：admin / 123456
+
+🧪 接口调试
+推荐使用 Knife4j 进行在线调试：
+
+启动项目后访问 http://localhost:8080/doc.html
+
+在顶部「接口文档」->「全局参数」中添加 Token
+
+输入管理端登录接口返回的 token 值，即可调试需要认证的接口
+
+注意：管理端与用户端 Token 相互隔离，调用用户端接口时需使用用户端登录获取的 Token。
+
+📦 部署建议
+生产环境推荐配置
+组件	推荐部署方式
+应用服务	Docker 容器化 + 多实例集群
+MySQL	主从复制 + 读写分离
+Redis	哨兵模式或集群模式
+OSS	阿里云 OSS 对象存储（已集成）
+Nginx	反向代理 + 负载均衡 + 静态资源服务
+Docker 部署示例（单机）
+dockerfile
+# Dockerfile
+FROM openjdk:8-jre-alpine
+COPY sky-server/target/sky-server-*.jar app.jar
+EXPOSE 8080
+ENTRYPOINT ["java", "-jar", "/app.jar"]
+bash
+# 构建并运行
+docker build -t sky-take-out .
+docker run -d -p 8080:8080 \
+  -e SPRING_DATASOURCE_URL=jdbc:mysql://host.docker.internal:3306/sky_take_out \
+  -e SPRING_REDIS_HOST=host.docker.internal \
+  --name sky-app sky-take-out
+👤 作者
+个人学习项目，独立完成后端核心接口开发。
+通过本项目实践了企业级 Spring Boot 项目开发全流程，包括接口设计、缓存优化、定时任务、WebSocket 实时通信、第三方 API 集成等核心技术。
+
+📄 开源协议
+本项目仅供学习参考使用，请勿用于商业用途。
+
+🙏 致谢
+Spring Boot
+
+MyBatis
+
+Knife4j
+
+阿里云 OSS
+
+百度地图开放平台
+
+注意：微信支付功能在实际生产环境中需要配置商户证书和回调接口，本项目中仅为模拟支付流程，实际开发需替换为真实支付接口。
